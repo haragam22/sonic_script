@@ -1,0 +1,96 @@
+// ==========================================
+// SONICSCRIPT GRAMMAR (v1.4 - INPUT FIX)
+// ==========================================
+
+start: statement+
+
+// --- Top Level Statements ---
+?statement: import_stmt
+          | assign_stmt
+          | track_block
+          | master_block
+          | chain NEWLINE     -> top_level_call
+          | COMMENT   -> ignore_comment
+          | NEWLINE   -> ignore_newline
+
+import_stmt: "import" NAME NEWLINE
+assign_stmt: "def" (NAME | NUMBER) "=" chain NEWLINE
+
+// --- The Signal Chain ---
+chain: source ("|" effect)*
+
+?source: mix_function
+       | atom
+
+?effect: atom
+
+// --- Arguments & Values ---
+?arg_expr: atom
+
+?atom: NAME (argument_list | "(" argument_list? ")")?  -> instrument_call
+     | value
+
+argument_list: argument (","? argument)*
+?argument: arg_expr             -> positional_arg
+         | NAME ":" arg_expr    -> keyword_arg
+         | "mix" ":" arg_expr   -> mix_arg
+         | "bpm" ":" arg_expr   -> bpm_arg
+
+mix_function: "mix" "[" chain ("," chain)* "]"
+
+?value: NUMBER              -> number
+      | STRING              -> string
+      | "input"             -> input_ref
+
+// --- Blocks ---
+track_block: "track" (NAME | NUMBER) ":" NEWLINE INDENT track_item+ DEDENT
+master_block: "master" ":" NEWLINE INDENT master_item+ DEDENT
+
+?track_item: bpm_stmt
+           | swing_stmt
+           | humanize_stmt
+           | play_stmt
+           | NEWLINE
+
+?master_item: chain NEWLINE
+            | chain
+            | NEWLINE
+
+bpm_stmt: "bpm" NUMBER NEWLINE
+swing_stmt: "swing" NUMBER NEWLINE
+humanize_stmt: "humanize" NUMBER NEWLINE
+play_stmt: "play" (NAME | NUMBER) ":" (pattern | euclidean_call) NEWLINE
+
+euclidean_call: "euclidean" "(" NUMBER "," NUMBER ")"
+
+// --- The Grid ---
+pattern: pattern_item+
+?pattern_item: note
+             | accent
+             | trigger
+             | ghost
+             | rest
+             | silence
+
+note: NOTE_NAME
+accent: "X"
+trigger: "x"
+ghost: "."
+rest: "-"
+silence: ".."
+
+// --- Lexer Rules ---
+NOTE_NAME: /[A-G][b#]?[0-9]/
+NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+NUMBER: /-?\d+(\.\d+)?/
+STRING: /"[^"]*"/
+COMMENT: /#[^\n]*/
+
+%import common.WS_INLINE
+%declare INDENT DEDENT
+%ignore WS_INLINE
+%ignore COMMENT
+
+// NOTE: %ignore NEWLINE is REMOVED (Correct)
+
+NEWLINE: /(\r?\n[\t ]*)+/

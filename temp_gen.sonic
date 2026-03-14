@@ -1,0 +1,38 @@
+import drums
+import bass
+import keys
+
+# --- Sound Design ---
+# Deep, distorted 808 that sidechains with the kick for that classic pump
+def trap_808 = saw | lpf 180 | dist 0.8 | sidechain trigger:kick | gain 1.1
+# Bright, crisp hi-hat
+def sharp_hat = hi_hat | hpf 5000 | dist 0.2 | gain 0.8 # Replaced 'crush' with 'dist' for a similar grit
+# Punchy snare
+def crisp_snare = snare | dist 0.3 | reverb mix:0.2
+# Atmospheric synth pad for melody
+def dark_synth = saw | lpf 1200 | delay time:0.3 mix:0.4 | reverb mix:0.5 | gain 0.7
+
+track main:
+    bpm 150
+    swing 0.15
+    humanize 0.02
+    
+    # The Kick: Hard hitting, half-time feel
+    play kick: X . . - X . . - X . . - X . . -
+    
+    # The Snare: On the backbeats, sharp and present
+    play crisp_snare: - - - - X - - - - - - - X - - -
+    
+    # The Hi-Hats: Fast, intricate rolls typical of trap
+    play sharp_hat: euclidean(13, 16)
+    
+    # The 808: Deep, rumbling bassline that follows the kick
+    play trap_808: C2 - - - C2 - - - G1 - - - G1 - - -
+    
+    # Dark Synth Melody: Adds atmosphere and fills the mid-high range
+    play dark_synth: D4 - - - - - - - A3 - - - - - - -
+
+master:
+    input | maximizer 0.9
+
+check_vibe(input, prompt:"trap type beat")

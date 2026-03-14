@@ -1,0 +1,59 @@
+# 🌵 ASTROWORLD: THE NEW FRONTIER
+# Style: New School Trap (120 BPM)
+# Features: FM Bells, Euclidean Shakers, Ghost Snares, Sidechain Sub, Granular Textures
+
+import drums
+import keys
+
+# --- 1. AVANT-GARDE SOUND DESIGN ---
+
+# Dark FM Bells (The Melody)
+def dark_bells = fm carrier_type:"sine" mod_ratio:2.5 mod_index:3.0 | lpf 1500 | reverb room_size:0.8 mix:0.4
+
+# The "Distant Ghost" Pad (Reverse TimeWarp)
+def ghost_pad = electric_piano | timewarp pattern:"reverse" | lpf 800 | reverb room_size:0.95 mix:0.7
+
+# Sub-Bass (808)
+def sub_808 = saw | lpf 120 | dist 0.85
+
+# Chained Drums
+def filtered_hat = hi_hat | hpf 5000
+def shaker_texture = noise | lpf 6000 | hpf 3000 | gain 0.3
+
+# Static Texture (Granular Glue)
+def texture_floor = noise | lpf 500 | glitch grain_size:0.02 density:0.9 | gain 0.05
+
+# --- 2. ARRANGEMENT (120 BPM) ---
+
+track production:
+    bpm 120
+    swing 0.15      # The "Bounce"
+    humanize 0.01   # The "Soul" (10ms jitter)
+
+    # Ambient Texture (Infinite Loop)
+    play texture_floor: x . . .  . . . .  . . . .  . . . .
+
+    # Reversed Pad (Distant & Haunting)
+    play ghost_pad: E3 - - -  - - - -  G3 - - -  - - - -
+
+    # Main Lead (Dark FM Bells)
+    play dark_bells: E4 - . .  G4 - . .  B4 - . .  A#4 - . .
+
+    # Hi-Hats with Euclidean Groove (13 hits in 16 steps)
+    play filtered_hat: euclidean(13, 16)
+
+    # Euclidean Shakers (5 hits in 16)
+    play shaker_texture: euclidean(5, 16)
+
+    # Snares with Dynamics (X=Accent, x=Normal, .=Ghost)
+    play snare: - - - -  X - - -  - - . .  X - . -
+
+    # Heavy Kick
+    play kick: x - - -  - - x -  - - x -  - - - -
+
+    # 808 Bass
+    play sub_808: x - - -  - - x -  - - x -  - - - -
+
+master:
+    # "The Sauce" - Glue + Final Maximizer
+    input | hpf 30 | maximizer 0.98

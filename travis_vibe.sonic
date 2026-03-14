@@ -1,0 +1,65 @@
+import drums
+import keys
+
+# ==========================================
+# UTOPIA MODE - 145 BPM (Standard Trap Speed)
+# ==========================================
+
+# --- 1. SOUND DESIGN (THE "SAUCE") ---
+
+# 808: The "Mike Dean" Method
+# We use a SAW wave (not sine) for grit, low-passed heavily, then clipped hard.
+def travis_808 = saw | lpf 90 | maximizer 0.95 | gain 1.1
+
+# MELODY: Detuned, darkened, and washed out
+# We mix two saws to create a natural "chorus" effect (detune)
+def dark_pad = mix [saw, saw] | lpf 600 | reverb mix:0.6 room_size:0.9 | gain 0.6
+
+# DRUMS: Sharp and Short
+# High Pass the hats to make room for the 808
+def trap_hat = hi_hat | hpf 5000 | decay 0.05
+def sharp_snare = snare | hpf 200 | maximizer 0.8 | reverb mix:0.1
+
+# TEXTURE: Vinyl Crackle / Air
+def noise_floor = noise | hpf 2000 | gain 0.05
+
+# --- 2. THE ARRANGEMENT (8 BARS) ---
+
+track main:
+    bpm 145
+    swing 0.2
+
+    # THE BACKGROUND DRONE (Holds the tension)
+    play noise_floor: x . . .  . . . .  . . . .  . . . .  x . . .  . . . .  . . . .  . . . .
+
+    # THE MELODY (E Minor - Dark)
+    # Long, sustained chords that "float" behind the beat
+    play dark_pad:    E3 - - -  - - - -  G3 - - -  - - - -  C3 - - -  - - - -  B2 - - -  - - - -
+    play dark_pad:    E3 - - -  - - - -  G3 - - -  - - - -  A3 - - -  - - - -  G3 - - -  B2 - - -
+
+    # THE 808 (Bass)
+    # Hits on the '1', leaves space, then slides at the end
+    play travis_808:  E1 - - -  - - - -  - - - -  - - E1 - E1 - - -  - - - -  - - - -  G1 - G1 -
+    play travis_808:  E1 - - -  - - - -  - - - -  - - E1 - C1 - - -  - - - -  - - - -  B0 - - -
+
+    # THE SNARE (The "Clap")
+    # Strictly on Beat 3 (The half-time anchor)
+    play sharp_snare: - - - -  x - - -  - - - -  x - - -  - - - -  x - - -  - - - -  x - - -
+    play sharp_snare: - - - -  x - - -  - - - -  x - - -  - - - -  x - - -  - - - -  x - - -
+
+    # THE KICK (Syncopated Bounce)
+    # Plays around the 808, never fighting it
+    play kick:        x - - -  - - - -  x - x -  - - - -  x - - -  - - - -  x - x x  - - - -
+    play kick:        x - - -  - - - -  x - x -  - - - -  x - - -  x - x -  - - - -  - - - -
+
+    # THE HATS (Rolls)
+    # "x" = Hit, "-" = Space. Notice the 3-hit bursts (triplet feel)
+    play trap_hat:    x x - x  x x x x  x - x x  x x x x  x x - x  x x x x  x x x x  x x x x
+    play trap_hat:    x x - x  x x x x  x - x x  x x x x  x x x x  x - x -  x x x x  x x x x
+
+# --- 3. THE MASTERING CHAIN ---
+
+master:
+    # This pushes the volume to 0dB (Streaming Loudness)
+    # The 'peaking' boosts the "Knock" frequency of the kick (55Hz)
+    input | peaking cutoff:55 gain_db:3.0 | maximizer 0.99
